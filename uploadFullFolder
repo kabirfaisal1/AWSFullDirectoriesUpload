@@ -1,40 +1,59 @@
 // * import files
 const AWS = require("aws-sdk");
-const fs = require ("fs");
-const path = require ("path");
+const fs = require("fs");
+const path = require("path");
 
 
 //* Get Current date to add part of publishID
-const date = new Date (Date. now ( )) ;
-const year = date. getFullYear () ;
-const month = date. toLocalestring('en-US', {month: 'short' }); // Months start at 0!
+const date = new Date(Date.now());
+const year = date.getFullYear();
+const month = date.toLocalestring('en-US', { month: 'short' }); // Months start at 0!
 const day = date.getDate();
 const TODAY = `${month}_${day}_${year}`;
 
 
 // * adding bucket_name and s3_folder
 const aws_bucket_name = "aiq-artifacts";
-const s3FileName = `report_publishID_${Math. floor (Math. random() * 13)}_${TODAY}`;
+const s3FileName = `report_publishID_${Math.floor(Math.random() * 13)}_${TODAY}`;
 const aws_s3_folder = `test-results/cypress/${s3FileName}`;
 // * Get file local test report that need to be uploaded
-const rootFolder = path. resolve(_dirname, "../");
-const uploadFolder="./filePath";
+const rootFolder = path.resolve(_dirname, "../");
+const uploadFolder = "./filePath";
 
 const uploadDir = function (objectsPath, bucketName) {
     // aws s3 credentials
     let s3 = new AWS.S3({
-    aws_profile: 'default'});
+        aws_profile: 'default'
+    });
     // * helper for file dir
-    function walkSync (currentDirPath, callback) {
-    fs. readdirSync (currentDirPath) . forEach (function (name) {
-    const filePath = path. join (currentDirPath, name);
-    const stat = fs.statSync( filePath);
-    if (stat.isfile()) {
-    callback(filePath, stat);
-    } else if (stat. isDirectory () ) {
-    walkSync(filePath, callback);}
-    });}
+    function walkSync(currentDirPath, callback) {
+        fs.readdirSync(currentDirPath).forEach(function (name) {
+            const filePath = path.join(currentDirPath, name);
+            const stat = fs.statSync(filePath);
+            if (stat.isfile()) {
+                callback(filePath, stat);
+            } else if (stat.isDirectory()) {
+                walkSync(filePath, callback);
+            }
+        });
+    }
     // * uploaded
+    // * uploaded to s3
+    walkSync(objectsPath, function (filePath, stat) {
+        const bucketPath = filePath.substring(objectsPath.length - 13);
+        const params = {
+            Bucket: bucketName, Key: `${aws_s3_folder}/${bucketPath}`,
+            Body: fs.readFileSync(filePath)
+        };
+        s3.upload(params, function (err, data) {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log(`Successfully uploaded: 
+    ${bucketPath} to bucketName: ${bucketName} 
+    Folder: ${aws_53_folder}`);
+            }
 
-
-}
+        })
+    });
+};
