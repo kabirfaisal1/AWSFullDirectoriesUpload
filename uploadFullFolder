@@ -21,7 +21,7 @@ const rootFolder = path.resolve(_dirname, "../");
 const uploadFolder = "./filePath";
 
 const uploadDir = function (objectsPath, bucketName) {
-    // aws s3 credentials
+    // aws s3 credentials: with default ymal on your system.
     let s3 = new AWS.S3({
         aws_profile: 'default'
     });
