@@ -13,7 +13,7 @@ const TODAY = `${month}_${day}_${year}`;
 
 
 // * adding bucket_name and s3_folder
-const aws_bucket_name = "aiq-artifacts";
+const aws_bucket_name = "my-artifacts";
 const s3FileName = `report_publishID_${Math.floor(Math.random() * 13)}_${TODAY}`;
 const aws_s3_folder = `test-results/cypress/${s3FileName}`;
 // * Get file local test report that need to be uploaded
